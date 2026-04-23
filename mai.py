@@ -22,7 +22,7 @@ def read_csv_file(file_path: Path) -> List[Dict[str, Any]]:
             for row in reader:
                 data.append(row)
     except FileNotFoundError:
-        print(f"✗ Ошибка: Файл {file_path} не найден")
+        print(f"Ошибка: Файл {file_path} не найден")
         raise
 
     return data
