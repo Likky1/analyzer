@@ -41,7 +41,7 @@ def process_files(file_paths: List[str]) -> List[Dict[str, Any]]:
     all_clickbait_videos = []
 
     for file_path in file_paths:
-        data = read_csv_file(Path(file_path))
+        data = read_csv_file(file_path)
 
         # Фильтруем кликбейтные видео из текущего файла
         for row in data:

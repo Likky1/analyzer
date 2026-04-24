@@ -1,7 +1,3 @@
-"""
-Тесты для CLI приложения анализа YouTube метрик (mai.py)
-"""
-
 import pytest
 import csv
 import tempfile
