@@ -1,7 +1,7 @@
 import pytest
 
 # Импортируем функции из основного модуля
-from mai import (
+from main import (
     read_csv_file,
     process_files,
     generate_clickbate,

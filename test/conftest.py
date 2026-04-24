@@ -1,4 +1,8 @@
 import pytest
+import shutil
+from pathlib import Path
+
+file_path = "test\\file_with_clickbate.csv"
 
 @pytest.fixture
 def multiple_csv_files():
