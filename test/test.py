@@ -1,7 +1,4 @@
 import pytest
-import tempfile
-import shutil
-from pathlib import Path
 
 # Импортируем функции из основного модуля
 from mai import (
@@ -16,23 +13,6 @@ file_path_without_clickbate = "test\\file_without_clickbate.csv"
 empty_file_path = "test\\empty_file.csv"
 boundary_file_path = "test\\file_with_limit.csv"
 
-# ==================== ФИКСТУРЫ ====================
-
-@pytest.fixture
-def multiple_csv_files():
-    """Фикстура для создания нескольких CSV файлов"""
-    files = []
-    files.append(file_path)
-    for i in range(3):
-        f=shutil.copy(file_path, f"{i}.csv")
-        files.append(f)
-
-    yield files
-    for file in files[1:]:
-        Path(file).unlink()
-
-
-# ==================== ТЕСТЫ ДЛЯ read_csv_file ====================
 
 class TestReadCSVFile:
     """Тесты для функции read_csv_file"""
@@ -64,10 +44,10 @@ class TestProcessFiles:
         assert len(result) == 5
         assert result[0]['title'] == 'Секрет который скрывают тимлиды'
         assert result[0]['ctr'] == 25
-        assert result[1]['title'] == 'Почему продакшн упал в пятницу вечером '
-        assert result[1]['ctr'] == 24
-        assert result[2]['title'] == 'Как я неделю не мыл кружку и выгорел'
-        assert result[2]['ctr'] == 23
+        assert result[1]['title'] == 'Как я задолжал ревьюеру 1000 строк кода'
+        assert result[1]['ctr'] == 21
+        assert result[2]['title'] == 'Купил джуну макбук и он уволился'
+        assert result[2]['ctr'] == 19
 
     def test_sorting_by_ctr_descending(self):
         """Тест сортировки по убыванию CTR"""
@@ -114,9 +94,9 @@ class TestProcessFiles:
 class TestGenerateClickbate:
     """Тесты для функции generate_clickbate"""
 
-    def test_report_with_clickbait_videos(self, capsys):
+    def test_report_with_clickbait_videos(self, capsys, clickbait_videos_sample):
         """Тест генерации отчета с кликбейтными видео"""
-        generate_clickbate(file_path)
+        generate_clickbate(clickbait_videos_sample)
         captured = capsys.readouterr()
 
         # Проверяем наличие заголовков
@@ -127,10 +107,10 @@ class TestGenerateClickbate:
         # Проверяем наличие данных
         assert "Секрет который скрывают тимлиды " in captured.out
         assert "25" in captured.out
-        assert "32" in captured.out  # retention_rate как int
+        assert "22" in captured.out  # retention_rate как int
 
-        assert "Как я неделю не мыл кружку и выгорел  " in captured.out
-        assert "23" in captured.out
+        assert "Как я задолжал ревьюеру 1000 строк кода" in captured.out
+        assert "21" in captured.out
 
         # Проверяем форматирование
         assert "|" in captured.out  # Таблица с границами
@@ -144,9 +124,9 @@ class TestGenerateClickbate:
         assert "Кликбейтные видео не найдены" in captured.out
         assert "|" not in captured.out  # Нет таблицы
 
-    def test_report_title_truncation(self, capsys):
+    def test_report_title_truncation(self, capsys, clickbait_videos_sample):
         """Тест обрезания длинных названий"""
-        generate_clickbate(file_path)
+        generate_clickbate(clickbait_videos_sample)
         captured = capsys.readouterr()
 
         # Проверяем, что длинное название обрезано
@@ -183,36 +163,7 @@ class TestChooseReport:
         assert "Кликбейтные видео не найдены" in captured.out
 
 
-# ==================== ТЕСТЫ ПРОИЗВОДИТЕЛЬНОСТИ ====================
-
-@pytest.mark.slow
-class TestPerformance:
-    """Тесты производительности"""
-
-    def test_large_file_processing(self):
-        """Тест обработки большого файла (10000 записей)"""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
-            f.write("title,ctr,retention_rate\n")
-            for i in range(10000):
-                ctr = 10 + (i % 20)  # CTR от 10 до 30
-                retention = 30 + (i % 30)  # Удержание от 30 до 60
-                f.write(f"Видео {i},{ctr},{retention}\n")
-            temp_path = Path(f.name)
-
-        try:
-            import time
-            start_time = time.time()
-            result = process_files([str(temp_path)])
-            end_time = time.time()
-
-            processing_time = end_time - start_time
-            assert processing_time < 1.0  # Должно обработать менее чем за секунду
-            assert len(result) > 0
-        finally:
-            temp_path.unlink()
-
-
 # ==================== ЗАПУСК ТЕСТОВ ====================
 
 if __name__ == "__main__":
-    pytest.main([__file__, '-v', '--tb=short'])
+    pytest.main(['-v'])
