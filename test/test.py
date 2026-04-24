@@ -166,4 +166,4 @@ class TestChooseReport:
 # ==================== ЗАПУСК ТЕСТОВ ====================
 
 if __name__ == "__main__":
-    pytest.main(['-v'])
+    pytest.main()
